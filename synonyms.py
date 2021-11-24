@@ -43,6 +43,7 @@ def cosine_similarity(vec1, vec2):
 
     return float(total_dot_product / (math.sqrt(sum_a * sum_b)))
 
+
 def build_semantic_descriptors(sentences):
     semantic_descriptor = {}
 
@@ -52,15 +53,23 @@ def build_semantic_descriptors(sentences):
         for word in sentences[n]:
             refined_word = word.replace(" ", "")
 
-            if refined_word not in semantic_descriptor:
-                semantic_descriptor[refined_word] = {}
+            if refined_word in semantic_descriptor:
+                for words in sentences[n]:
+                    if words != refined_word:
+                        if words in semantic_descriptor[refined_word]:
+                            semantic_descriptor[refined_word][words] += 1
+                        else:
+                            semantic_descriptor[refined_word][words] = 1
 
-            for words in sentences[n]:
-                if words != refined_word:
-                    if words in semantic_descriptor[refined_word]:
-                        semantic_descriptor[refined_word][words] += 1
-                    else:
-                        semantic_descriptor[refined_word][words] = 1
+            else:
+                temp_dic = {}
+                for words in sentences[n]:
+                    if words != refined_word:
+                        if words in temp_dic:
+                            temp_dic[words] += 1
+                        else:
+                            temp_dic[words] = 1
+                        semantic_descriptor[word] = temp_dic
 
     return semantic_descriptor
 
@@ -95,14 +104,36 @@ def build_semantic_descriptors_from_files(filenames):
 
 
 def most_similar_word(word, choices, semantic_descriptors, similarity_fn):
-    pass
+    # word - (string), choices - list of strings, similarity_fn - function
+    # compute semantic similairty using the cosine_similarity function
+    # check if the word is in the semantic_descriptor or else return -1
+
+    # if word in
+
+    word1_vec = semantic_descriptors.get(word.lower())
+    similarity = 0
+    choice = ""
+
+    if word not in semantic_descriptors:
+        return choice[0]
+
+    for i in range(len(choices)):
+
+        if choices[i] not in semantic_descriptors:
+            temp = -1
+        else:
+            word2_vec = semantic_descriptors.get(choices[i].lower())
+            temp = similarity_fn(word1_vec, word2_vec)
+
+        if temp > similarity:
+            similarity = temp
+            choice = choice[i]
+
+    return choice
 
 
 def run_similarity_test(filename, semantic_descriptors, similarity_fn):
     pass
-
-
-
 
 
 # TESTING
