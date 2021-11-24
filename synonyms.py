@@ -6,6 +6,26 @@ import re
 # subpart a
 import txt as txt
 
+'''Semantic Similarity: starter code
+
+Author: Michael Guerzhoy. Last modified: Nov. 14, 2016.
+'''
+
+import math
+
+
+def norm(vec):
+    '''Return the norm of a vector stored as a dictionary,
+    as described in the handout for Project 3.
+    '''
+
+    sum_of_squares = 0.0
+    for x in vec:
+        sum_of_squares += vec[x] * vec[x]
+
+    return math.sqrt(sum_of_squares)
+
+
 def cosine_similarity(vec1, vec2):
     sum_a = 0
     sum_b = 0
@@ -22,7 +42,6 @@ def cosine_similarity(vec1, vec2):
         sum_b += item ** 2
 
     return float(total_dot_product / (math.sqrt(sum_a * sum_b)))
-
 
 def build_semantic_descriptors(sentences):
     semantic_descriptor = {}
@@ -51,7 +70,7 @@ def build_semantic_descriptors_from_files(filenames):
 
     total_text = []
     text = ""
-    punctuation = [", ", "-", "--", ": ", "; ", "//", "/", """"\"""", """\\"""]
+    punctuation = [", ", "-", "--", ": ", "; ", "//", "/", "\\", "\n"]
     separations = ["! ", ". ", "? "]
 
     for i in range(len(filenames)):
@@ -69,10 +88,21 @@ def build_semantic_descriptors_from_files(filenames):
             total_text.append(f[i].split(" "))
 
     a = build_semantic_descriptors(total_text)
-    print(a.keys())
-    print(a.get("candle"))
+    # print(a.keys())
+    print(a.get("her"))
 
     return build_semantic_descriptors(total_text)
+
+
+def most_similar_word(word, choices, semantic_descriptors, similarity_fn):
+    pass
+
+
+def run_similarity_test(filename, semantic_descriptors, similarity_fn):
+    pass
+
+
+
 
 
 # TESTING
@@ -96,9 +126,4 @@ def build_semantic_descriptors_from_files(filenames):
 #  "disease", "and", "do", "not", "know", "for", "certain", "what", "ails", "me"]]))
 
 a = [["This is a test to see if regex works! This is a sentence; there, is the use of many -- expressions"]]
-
 build_semantic_descriptors_from_files(["War_And_Peace.txt"])
-
-
-
-
