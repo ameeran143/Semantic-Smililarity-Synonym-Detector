@@ -1,15 +1,10 @@
 import math
 import re
+# import txt as txt
 
 # Part 1
 
 # subpart a
-import txt as txt
-
-'''Semantic Similarity: starter code
-
-Author: Michael Guerzhoy. Last modified: Nov. 14, 2016.
-'''
 
 import math
 
@@ -30,16 +25,19 @@ def cosine_similarity(vec1, vec2):
     sum_a = 0
     sum_b = 0
     total_dot_product = 0
+    shared_keys = []
 
     for item in vec1.items():
         sum_a += item[1] ** 2
         if item[0] in vec2.keys():
-            total_dot_product += item[1] * vec2.get(item[0])
-            print(total_dot_product)
+            shared_keys.append(item[0])
 
     # calculating the sum of vec 2 squares
     for item in vec2.values():
         sum_b += item ** 2
+
+    for i in shared_keys:
+        total_dot_product += vec1.get(i) * vec2.get(i)
 
     return float(total_dot_product / (math.sqrt(sum_a * sum_b)))
 
@@ -69,7 +67,7 @@ def build_semantic_descriptors(sentences):
                             temp_dic[words] += 1
                         else:
                             temp_dic[words] = 1
-                        semantic_descriptor[word] = temp_dic
+                        semantic_descriptor[refined_word] = temp_dic
 
     return semantic_descriptor
 
@@ -79,26 +77,26 @@ def build_semantic_descriptors_from_files(filenames):
 
     total_text = []
     text = ""
-    punctuation = [", ", "-", "--", ": ", "; ", "//", "/", "\\", "\n"]
-    separations = ["! ", ". ", "? "]
+    punctuation = [",", "-", "--", ":", ";",'"',"'"]
+    separations = ["!", "?"]
 
     for i in range(len(filenames)):
-        f = open(filenames[0], "r", encoding="latin1").read()
+        f = open(filenames[i], "r", encoding="utf-8").read()
         f = f.lower()
+        list1 = []
 
         for x in punctuation:
             f = f.replace(x, " ")
         for y in separations:
             f = f.replace(y, ".")
 
-        f = f.split(".")
+        f = f.replace("\ufeff", " ")
 
-        for i in range(len(f)):
-            total_text.append(f[i].split(" "))
+        f_split = f.split(".")
 
-    a = build_semantic_descriptors(total_text)
-    # print(a.keys())
-    print(a.get("her"))
+        for x in f_split:
+            list1.append(x.split())
+        total_text += list1
 
     return build_semantic_descriptors(total_text)
 
@@ -108,53 +106,60 @@ def most_similar_word(word, choices, semantic_descriptors, similarity_fn):
     # compute semantic similairty using the cosine_similarity function
     # check if the word is in the semantic_descriptor or else return -1
 
-    # if word in
-
     word1_vec = semantic_descriptors.get(word.lower())
     similarity = 0
-    choice = ""
+    choice = choices[0]
 
-    if word not in semantic_descriptors:
-        return choice[0]
+    if word not in semantic_descriptors.keys():
+        return choice
 
     for i in range(len(choices)):
 
-        if choices[i] not in semantic_descriptors:
+        if choices[i].lower() not in semantic_descriptors:
             temp = -1
         else:
             word2_vec = semantic_descriptors.get(choices[i].lower())
             temp = similarity_fn(word1_vec, word2_vec)
 
+        if i == 0:
+            similarity = temp
+
         if temp > similarity:
             similarity = temp
-            choice = choice[i]
+            choice = choices[i]
 
     return choice
 
 
 def run_similarity_test(filename, semantic_descriptors, similarity_fn):
-    pass
+    # takes in a file name that contains the testing in the format: word answer option1 op2 op3 (all lower case.)
+    f = open(filename, "r", encoding="utf-8").read()
+    split = f.split("\n")
+    question_list = []
 
+    for i in range(len(split)):
+        question_list.append(split[i].split(" "))
 
-# TESTING
-# a = {"a": 1, "b": 2, "c": 3}
-# b = {"b": 4, "c": 5, "d": 6}
-#
-# if "a" in a:
-#     print("yes")
+    max_similarity = 0
+    calculated_answer = ""
+    correct = 0
+    total = len(question_list)
+    options = []
 
-# a["e"] = "yes"
-# print(a)
+    for i in range(len(question_list)):
+        options = []
 
+        word = question_list[i][0]
+        real_answer = question_list[i][1]
+        for x in range(len(question_list[i])):
+            if x >= 2:
+                options.append(question_list[i][x])
 
-# print(cosine_similarity(a, b))
-# TESTING
-# print(build_semantic_descriptors([["i", "am", "a", "sick", "man"],
-#  ["i", "am", "a", "spiteful", "man"],
-#  ["i", "am", "an", "unattractive", "man"],
-#  ["i", "believe", "my", "liver", "is", "diseased"],
-#  ["however", "i", "know", "nothing", "at", "all", "about", "my",
-#  "disease", "and", "do", "not", "know", "for", "certain", "what", "ails", "me"]]))
+        if most_similar_word(word, options, semantic_descriptors, similarity_fn).lower() == real_answer:
+            correct += 1
 
-a = [["This is a test to see if regex works! This is a sentence; there, is the use of many -- expressions"]]
-build_semantic_descriptors_from_files(["War_And_Peace.txt"])
+    return float((correct / total) * 100)
+
+sem_descriptors = build_semantic_descriptors_from_files(["War_And_Peace.txt", "sw.txt", "frankenstein.txt", "sholmes.txt", "oz.txt", "huckleberry.txt", "percy_jackson.txt"])
+res = run_similarity_test("test.txt", sem_descriptors, cosine_similarity)
+print(res, "% of the guesses were correct")
