@@ -49,24 +49,28 @@ def build_semantic_descriptors(sentences):
     # if yes, it then adds +1 to all the count of the other words into the respective dictionary
     for n in range(len(sentences)):
         for word in sentences[n]:
+            word = word.lower()
             refined_word = word.replace(" ", "")
+            refined_word = refined_word
 
             if refined_word in semantic_descriptor:
-                for words in sentences[n]:
-                    if words != refined_word:
-                        if words in semantic_descriptor[refined_word]:
-                            semantic_descriptor[refined_word][words] += 1
+                for x in sentences[n]:
+                    x = x.lower()
+                    if x != refined_word:
+                        if x in semantic_descriptor[refined_word]:
+                            semantic_descriptor[refined_word][x] += 1
                         else:
-                            semantic_descriptor[refined_word][words] = 1
+                            semantic_descriptor[refined_word][x] = 1
 
             else:
                 temp_dic = {}
-                for words in sentences[n]:
-                    if words != refined_word:
-                        if words in temp_dic:
-                            temp_dic[words] += 1
+                for x in sentences[n]:
+                    x = x.lower()
+                    if x != refined_word:
+                        if x in temp_dic:
+                            temp_dic[x] += 1
                         else:
-                            temp_dic[words] = 1
+                            temp_dic[x] = 1
                         semantic_descriptor[refined_word] = temp_dic
 
     return semantic_descriptor
