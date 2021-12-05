@@ -47,31 +47,21 @@ def build_semantic_descriptors(sentences):
 
     # doing this sentence bty sentence, loop through each sentence, checks if each word is in the dictionary already,
     # if yes, it then adds +1 to all the count of the other words into the respective dictionary
-    for n in range(len(sentences)):
-        for word in sentences[n]:
-            word = word.lower()
-            refined_word = word.replace(" ", "")
-            refined_word = refined_word
+    for x in sentences:
+        no_duplicates = []
+        for word in x:
+            if word not in no_duplicates:
+                no_duplicates.append(word)
 
-            if refined_word in semantic_descriptor:
-                for x in sentences[n]:
-                    x = x.lower()
-                    if x != refined_word:
-                        if x in semantic_descriptor[refined_word]:
-                            semantic_descriptor[refined_word][x] += 1
-                        else:
-                            semantic_descriptor[refined_word][x] = 1
-
-            else:
-                temp_dic = {}
-                for x in sentences[n]:
-                    x = x.lower()
-                    if x != refined_word:
-                        if x in temp_dic:
-                            temp_dic[x] += 1
-                        else:
-                            temp_dic[x] = 1
-                        semantic_descriptor[refined_word] = temp_dic
+        for a in no_duplicates:
+            for b in no_duplicates:
+                if a not in semantic_descriptor.keys():
+                    semantic_descriptor[a] = {}
+                if a != b:
+                    if b in semantic_descriptor[a].keys():
+                        semantic_descriptor[a][b] += 1
+                    else:
+                        semantic_descriptor[a][b] = 1
 
     return semantic_descriptor
 
@@ -80,7 +70,6 @@ def build_semantic_descriptors_from_files(filenames):
     # [",", "-", "--", ":", ";"]
 
     total_text = []
-    text = ""
     punctuation = [",", "-", "--", ":", ";",'"',"'"]
     separations = ["!", "?"]
 
@@ -142,7 +131,7 @@ def run_similarity_test(filename, semantic_descriptors, similarity_fn):
     question_list = []
 
     for i in range(len(split)):
-        question_list.append(split[i].split(" "))
+        question_list.append(split[i].split())
 
     max_similarity = 0
     calculated_answer = ""
@@ -164,6 +153,6 @@ def run_similarity_test(filename, semantic_descriptors, similarity_fn):
 
     return float((correct / total) * 100)
 
-sem_descriptors = build_semantic_descriptors_from_files(["War_And_Peace.txt", "sw.txt", "frankenstein.txt", "sholmes.txt", "oz.txt", "huckleberry.txt", "percy_jackson.txt"])
+sem_descriptors = build_semantic_descriptors_from_files(["wp.txt", "sw.txt", "frankenstein.txt", "sholmes.txt", "oz.txt", "huckleberry.txt", "percy_jackson.txt"])
 res = run_similarity_test("test.txt", sem_descriptors, cosine_similarity)
 print(res, "% of the guesses were correct")
