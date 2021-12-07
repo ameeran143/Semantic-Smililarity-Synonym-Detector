@@ -49,19 +49,49 @@ def build_semantic_descriptors(sentences):
     # if yes, it then adds +1 to all the count of the other words into the respective dictionary
     for x in sentences:
         no_duplicates = []
+
+        # removing all the duplicates from the sentences so that semantic descriptors is not double counted.
         for word in x:
             if word not in no_duplicates:
                 no_duplicates.append(word)
 
-        for a in no_duplicates:
-            for b in no_duplicates:
-                if a not in semantic_descriptor.keys():
-                    semantic_descriptor[a] = {}
-                if a != b:
-                    if b in semantic_descriptor[a].keys():
-                        semantic_descriptor[a][b] += 1
-                    else:
-                        semantic_descriptor[a][b] = 1
+        # doing this sentence bty sentence, loop through each sentence, checks if each word is in the dictionary already,
+        # if yes, it then adds +1 to all the count of the other words into the respective dictionary
+        for word in no_duplicates:
+            word = word.lower()
+            refined_word = word
+
+            if refined_word in semantic_descriptor:
+                for x in no_duplicates:
+                    x = x.lower()
+                    if x != refined_word:
+                        if x in semantic_descriptor[refined_word]:
+                            semantic_descriptor[refined_word][x] += 1
+                        else:
+                            semantic_descriptor[refined_word][x] = 1
+
+            else:
+                temp_dic = {}
+                for x in no_duplicates:
+                    x = x.lower()
+                    if x != refined_word:
+                        if x in temp_dic:
+                            temp_dic[x] += 1
+                        else:
+                            temp_dic[x] = 1
+                        semantic_descriptor[refined_word] = temp_dic
+
+        return semantic_descriptor
+
+        # for a in no_duplicates:
+        #     for b in no_duplicates:
+        #         if a not in semantic_descriptor.keys():
+        #             semantic_descriptor[a] = {}
+        #         if a != b:
+        #             if b in semantic_descriptor[a].keys():
+        #                 semantic_descriptor[a][b] += 1
+        #             else:
+        #                 semantic_descriptor[a][b] = 1
 
     return semantic_descriptor
 
@@ -70,7 +100,7 @@ def build_semantic_descriptors_from_files(filenames):
     # [",", "-", "--", ":", ";"]
 
     total_text = []
-    punctuation = [",", "-", "--", ":", ";",'"',"'"]
+    punctuation = [",", "-", "--", ":", ";", '"']
     separations = ["!", "?"]
 
     for i in range(len(filenames)):
@@ -102,6 +132,7 @@ def most_similar_word(word, choices, semantic_descriptors, similarity_fn):
     word1_vec = semantic_descriptors.get(word.lower())
     similarity = 0
     choice = choices[0]
+    temp = 0
 
     if word not in semantic_descriptors.keys():
         return choice
@@ -128,6 +159,7 @@ def run_similarity_test(filename, semantic_descriptors, similarity_fn):
     # takes in a file name that contains the testing in the format: word answer option1 op2 op3 (all lower case.)
     f = open(filename, "r", encoding="utf-8").read()
     split = f.split("\n")
+    del split[-1]
     question_list = []
 
     for i in range(len(split)):
@@ -153,6 +185,6 @@ def run_similarity_test(filename, semantic_descriptors, similarity_fn):
 
     return float((correct / total) * 100)
 
-sem_descriptors = build_semantic_descriptors_from_files(["wp.txt", "sw.txt", "frankenstein.txt", "sholmes.txt", "oz.txt", "huckleberry.txt", "percy_jackson.txt"])
-res = run_similarity_test("test.txt", sem_descriptors, cosine_similarity)
-print(res, "% of the guesses were correct")
+# sem_descriptors = build_semantic_descriptors_from_files(["wp.txt", "sw.txt", "frankenstein.txt", "sholmes.txt", "oz.txt", "huckleberry.txt", "percy_jackson.txt"])
+# res = run_similarity_test("test.txt", sem_descriptors, cosine_similarity)
+# print(res, "% of the guesses were correct")
