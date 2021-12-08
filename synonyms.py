@@ -51,47 +51,17 @@ def build_semantic_descriptors(sentences):
         no_duplicates = []
 
         # removing all the duplicates from the sentences so that semantic descriptors is not double counted.
-        for word in x:
-            if word not in no_duplicates:
-                no_duplicates.append(word)
+        no_duplicates = list(set(x))
 
-        # doing this sentence bty sentence, loop through each sentence, checks if each word is in the dictionary already,
-        # if yes, it then adds +1 to all the count of the other words into the respective dictionary
-        for word in no_duplicates:
-            word = word.lower()
-            refined_word = word
-
-            if refined_word in semantic_descriptor:
-                for x in no_duplicates:
-                    x = x.lower()
-                    if x != refined_word:
-                        if x in semantic_descriptor[refined_word]:
-                            semantic_descriptor[refined_word][x] += 1
-                        else:
-                            semantic_descriptor[refined_word][x] = 1
-
-            else:
-                temp_dic = {}
-                for x in no_duplicates:
-                    x = x.lower()
-                    if x != refined_word:
-                        if x in temp_dic:
-                            temp_dic[x] += 1
-                        else:
-                            temp_dic[x] = 1
-                        semantic_descriptor[refined_word] = temp_dic
-
-        return semantic_descriptor
-
-        # for a in no_duplicates:
-        #     for b in no_duplicates:
-        #         if a not in semantic_descriptor.keys():
-        #             semantic_descriptor[a] = {}
-        #         if a != b:
-        #             if b in semantic_descriptor[a].keys():
-        #                 semantic_descriptor[a][b] += 1
-        #             else:
-        #                 semantic_descriptor[a][b] = 1
+        for a in no_duplicates:
+            for b in no_duplicates:
+                if a not in semantic_descriptor.keys():
+                    semantic_descriptor[a] = {}
+                if a != b:
+                    if b in semantic_descriptor[a].keys():
+                        semantic_descriptor[a][b] += 1
+                    else:
+                        semantic_descriptor[a][b] = 1
 
     return semantic_descriptor
 
